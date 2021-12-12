@@ -41,10 +41,6 @@ class Obstacle {
         return rectangle.intersects(topPipe) || rectangle.intersects(bottomPipe);
     }
     
-    public boolean passedOn(Rectangle rectangle) {
-        return rectangle.x > x + width && !isPassedOn;
-    }
-    
     public void moveX(int dx) {
         x -= dx;
         topPipe.x -= dx;
@@ -162,8 +158,6 @@ public class Game extends JPanel implements Runnable, MouseListener{
             );
             
             startPositionFlappy();
-            
-            font = new Font("TimesRoman", Font.BOLD, 16 * DISTORTION);
         } catch (Exception e) {
             e.printStackTrace();
             
@@ -188,14 +182,6 @@ public class Game extends JPanel implements Runnable, MouseListener{
         backgroundBox.x -= 1;
         floorBox.x -= 3;
         
-        if(backgroundBox.x + backgroundBox.getWidth() <= 0) {
-            backgroundBox.x = (int) (backgroundBox.x + backgroundBox.getWidth());
-        }
-        
-        if(floorBox.x + floorBox.getWidth() <= 0) {
-            floorBox.x = (int) (floorBox.x + floorBox.getWidth());
-        }
-        
         intervalFrame++;
         if(intervalFrame > 5) {
             intervalFrame = 0;
@@ -213,16 +199,6 @@ public class Game extends JPanel implements Runnable, MouseListener{
                 if(obstacle.x + obstacle.width < 0) {
                     obstacle.resetToNewPosition(SIZE + obstacle.width + 65);
                 }
-                if(obstacle.intersect(flappyBox)) {
-                    gameOver();
-                }
-                if(obstacle.passedOn(flappyBox)) {
-                    obstacle.isPassedOn = true;
-                    point++;
-                    if(point > record) {
-                        record = point;
-                    }
-                }
             }
         }
         
@@ -232,10 +208,6 @@ public class Game extends JPanel implements Runnable, MouseListener{
         } else if (direction == Direction.Up) {
             velocity = -4.5f;
             flappyBox.y -= -velocity;
-        }
-        
-        if(flappyBox.y + flappyBox.getHeight() >= SIZE - floorBox.height || flappyBox.y <= 0) {
-            gameOver();
         }
     }
     
@@ -265,9 +237,8 @@ public class Game extends JPanel implements Runnable, MouseListener{
         );
         
         for(Obstacle obstacle : obstacles) {
-                g2.drawImage(topPipe, obstacle.x, obstacle.topPipe.y, obstacle.width, obstacle.height, null);
-                g2.drawImage(bottomPipe, obstacle.x, obstacle.bottomPipe.y, obstacle.width, obstacle.height, null);
-            }
+            g2.drawImage(topPipe, obstacle.x, obstacle.topPipe.y, obstacle.width, obstacle.height, null);
+        }
         
         g2.drawImage(
                 floor,
@@ -277,14 +248,14 @@ public class Game extends JPanel implements Runnable, MouseListener{
                 (int) floorBox.getHeight(),
                 null
         );
-        g2.drawImage(
-                floor,
-                (int) (floorBox.x + floorBox.getWidth()),
-                floorBox.y,
-                (int) floorBox.getWidth(),
-                (int) floorBox.getHeight(),
-                null
-        );
+//        g2.drawImage(
+//                floor,
+//                (int) (floorBox.x + floorBox.getWidth()),
+//                floorBox.y,
+//                (int) floorBox.getWidth(),
+//                (int) floorBox.getHeight(),
+//                null
+//        );
         g2.drawImage(
                 bird,
                 flappyBox.x,
@@ -303,13 +274,6 @@ public class Game extends JPanel implements Runnable, MouseListener{
                     (int) tapToStartTheGameBox.getHeight(),
                     null
             );
-        }
-        g2.setColor(Color.YELLOW);
-        g2.setFont(font);
-        if(!inGame) {
-            g2.drawString("Record: " + record, 10, 35);
-        } else {
-            g2.drawString(point + "", SIZE - 80, 35);
         }
         
         Graphics g = getGraphics();
